@@ -1,7 +1,6 @@
 package com.sosom.security.jwt.domain;
 
 import com.sosom.baseentity.BaseTimeEntity;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +9,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor
-public class RefreshToken {
+public class RefreshToken extends BaseTimeEntity {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
