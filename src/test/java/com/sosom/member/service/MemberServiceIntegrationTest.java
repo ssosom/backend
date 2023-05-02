@@ -220,7 +220,6 @@ public class MemberServiceIntegrationTest {
         void not_exist_nickname(){
             //given
             String email = "not_exist_email";
-            given(memberRepository.findOptionalByEmail(email)).willReturn(Optional.empty());
 
             //when
             Boolean result = memberService.existEmail(email);
