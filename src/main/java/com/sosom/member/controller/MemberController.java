@@ -43,7 +43,7 @@ public class MemberController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "accessToken과 refreshToken를 반환합니다"),
             @ApiResponse(responseCode = "400",description = " email이나 password과 틀릴시 Error를 반환합니다",content = @Content( schema = @Schema(implementation = ErrorResponse.class)))})
-    public ResponseEntity<TokenInfo> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<TokenInfo> login(@RequestBody @Valid LoginRequest loginRequest){
         return new ResponseEntity<>(memberService.login(loginRequest),HttpStatus.OK);
     }
 
