@@ -96,7 +96,7 @@ public class MemberService {
     @Transactional
     public void changeNickname(ChangeNicknameRequest changeNicknameRequest, String email) {
         String nickname = changeNicknameRequest.getNickname();
-        Optional<Member> findMember = memberRepository.findByNickname(nickname);
+        Optional<Member> findMember = memberRepository.findOptionalByNickname(nickname);
 
         if(findMember.isPresent()){
             throw new CustomException(ErrorCode.EXIST_NICKNAME);
@@ -108,7 +108,7 @@ public class MemberService {
     }
 
     public Boolean existNickname(String nickname) {
-        Optional<Member> findMember = memberRepository.findByNickname(nickname);
+        Optional<Member> findMember = memberRepository.findOptionalByNickname(nickname);
 
         return findMember.isPresent();
     }
