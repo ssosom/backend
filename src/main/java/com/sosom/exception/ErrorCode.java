@@ -12,7 +12,8 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않은 Token입니다"),
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED,"만료된 AccessToken입니다"),
     FAIL_AUTHORIZATION(HttpStatus.UNAUTHORIZED,"인증되지 않은 사용자입니다."),
-    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,"만료된 RefreshToken입니다");
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,"만료된 RefreshToken입니다"),
+    EXIST_EMAIL(HttpStatus.BAD_REQUEST,"존재하는 이메일입니다");
 
     private final HttpStatus status;
     private final String message;

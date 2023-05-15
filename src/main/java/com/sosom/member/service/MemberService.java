@@ -36,6 +36,10 @@ public class MemberService {
     public IdDto saveMember(SaveMemberRequest saveMemberRequest) {
         String email = saveMemberRequest.getEmail();
         String nickname = saveMemberRequest.getNickname();
+
+        validateExistEmail(email);
+        validateExistNickname(nickname);
+
         String password = passwordEncoder.encode(saveMemberRequest.getPassword());
 
         Member member =  Member.createNormalMember(email,password,nickname);
@@ -118,4 +122,17 @@ public class MemberService {
 
         return findMember.isPresent();
     }
+
+    private void validateExistEmail(String email) {
+        if(memberRepository.findOptionalByEmail(email).isPresent()){
+            throw new CustomException(ErrorCode.EXIST_EMAIL);
+        }
+    }
+
+    private void validateExistNickname(String nickname) {
+        if(memberRepository.findOptionalByNickname(nickname).isPresent()){
+            throw new CustomException(ErrorCode.EXIST_NICKNAME);
+        }
+    }
+
 }
