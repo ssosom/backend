@@ -13,6 +13,7 @@ import com.sosom.security.jwt.TokenInfo;
 import com.sosom.security.jwt.domain.RefreshToken;
 import com.sosom.security.jwt.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -99,10 +101,10 @@ public class MemberService {
 
     @Transactional
     public void changeNickname(ChangeNicknameRequest changeNicknameRequest, String email) {
+        Member member = validateMember(email);
+
         String nickname = changeNicknameRequest.getNickname();
         validateExistNickname(nickname);
-
-        Member member = memberRepository.findByEmail(email);
 
         member.changeNickname(nickname);
     }
@@ -129,6 +131,16 @@ public class MemberService {
         if(memberRepository.findOptionalByNickname(nickname).isPresent()){
             throw new CustomException(ErrorCode.EXIST_NICKNAME);
         }
+    }
+
+    private Member validateMember(String email){
+        Optional<Member> findMember = memberRepository.findOptionalByEmail(email);
+
+        if(findMember.isEmpty()){
+            log.error("확인되지 않은 사용자입니다");
+            throw new CustomException(ErrorCode.FAIL_AUTHORIZATION);
+        }
+        return findMember.get();
     }
 
 }

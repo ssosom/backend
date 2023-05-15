@@ -140,7 +140,7 @@ class MemberServiceTest {
                     ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("changeNickname");
                     String email = "email";
                     given(memberRepository.findOptionalByNickname(any())).willReturn(Optional.empty());
-                    given(memberRepository.findByEmail(email)).willReturn(member);
+                    given(memberRepository.findOptionalByEmail(email)).willReturn(Optional.of(member));
 
                     //when
                     memberService.changeNickname(changeNicknameRequest,email);
@@ -160,6 +160,7 @@ class MemberServiceTest {
                     //given
                     ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("nickname");
                     String email = "newEmail";
+                    given(memberRepository.findOptionalByEmail(email)).willReturn(Optional.of(member));
                     given(memberRepository.findOptionalByNickname(any())).willReturn(Optional.of(member));
 
                     //when
