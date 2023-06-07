@@ -52,7 +52,7 @@ public class WebConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().antMatchers("/h2-console/**","/sosom/**","/v3/**"));
+        return (web -> web.ignoring().antMatchers("/h2-console/**","/sosom/**","/v3/**","/ws/**"));
     }
 
     @Bean

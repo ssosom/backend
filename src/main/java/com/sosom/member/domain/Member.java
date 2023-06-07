@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,12 +30,15 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SignUpType signUpType;
 
+    private LocalDateTime lastActive;
+
     private Member(String email,String password,String nickname,MemberRole role,SignUpType signUpType){
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
         this.signUpType = signUpType;
+        this.lastActive = LocalDateTime.now();
     }
 
     public static Member createNormalMember(String email,String password,String nickname){
@@ -48,7 +52,8 @@ public class Member extends BaseTimeEntity {
     public void changeNickname(String nickname){
         this.nickname = nickname;
     }
-
-
+    public void updateLastActive(LocalDateTime now) {
+        this.lastActive = now;
+    }
 
 }
