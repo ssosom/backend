@@ -15,8 +15,9 @@ public enum ErrorCode {
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,"만료된 RefreshToken입니다"),
     EXIST_EMAIL(HttpStatus.BAD_REQUEST,"존재하는 이메일입니다"),
     FAIL_VOICE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR,"보이스 업로드에 실패했습니다."),
-    NOT_EXIST_ROOM(HttpStatus.BAD_REQUEST,"존재하지 않는 대화방입니다");
-
+    NOT_EXIST_ROOM(HttpStatus.BAD_REQUEST,"존재하지 않는 대화방입니다"),
+    NOT_EXIST_MEMBER_ROOM(HttpStatus.BAD_REQUEST,"존재하지 않는 대화방입니다"),
+    FAIL_AUTHORITY(HttpStatus.FORBIDDEN,"인가되지 않은 사용자입니다");
     private final HttpStatus status;
     private final String message;
 
