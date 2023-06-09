@@ -6,9 +6,9 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  S3_BUCKET_NAME: yougeun-bucket
-  CODE_DEPLOY_APPLICATION_NAME: codedeploy-cicd
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: codedeploy-cicd-deployment-group
+  S3_BUCKET_NAME: sosombucket
+  CODE_DEPLOY_APPLICATION_NAME: codedeploy-sosom
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: codedeploy-group-sosom
 
 permissions:
   contents: read
@@ -39,9 +39,41 @@ jobs:
 
       # application.yml 내용 추가
       - name: deliver application.yml
-        run: echo "${{ secrets.YML }}" > ./src/main/resources/application.yml
+        run: echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
         shell: bash
 
+      # aws.yml 생성
+      - name: make aws.yml
+        run:
+          touch ./src/main/resources/aws.yml
+        shell: bash
+
+      # aws.yml 내용 추가
+      - name: deliver aws.yml
+        run: echo "${{ secrets.AWS_YML }}" > ./src/main/resources/aws.yml
+        shell: bash
+
+      # auth2.yml 생성
+      - name: make oauth2.yml
+        run:
+          touch ./src/main/resources/oauth2.yml
+        shell: bash
+
+      # auth2.yml 내용 추가
+      - name: deliver aws.yml
+        run: echo "${{ secrets.OAUTH2_YML }}" > ./src/main/resources/oauth2.yml
+        shell: bash
+
+      # swagger.yml 생성
+      - name: make swagger.yml
+        run:
+          touch ./src/main/resources/swagger.yml
+        shell: bash
+
+      # swagger.yml 내용 추가
+      - name: deliver swagger.yml
+        run: echo "${{ secrets.SWAGGER_YML }}" > ./src/main/resources/swagger.yml
+        shell: bash
 
       # (3) Gradle build
       - name: Grant execute permission for gradlew
@@ -71,7 +103,7 @@ jobs:
           aws deploy push \
             --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
             --ignore-hidden-files \
-            --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
+            --s3-location s3://$S3_BUCKET_NAME/spring/$GITHUB_SHA.zip \
             --source .
 
       # (6) S3 버킷에 있는 파일을 대상으로 CodeDeploy 실행
@@ -81,4 +113,4 @@ jobs:
             --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
             --deployment-config-name CodeDeployDefault.AllAtOnce \
             --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
-            --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
+            --s3-location bucket=$S3_BUCKET_NAME,key=spring/$GITHUB_SHA.zip,bundleType=zip
