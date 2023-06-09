@@ -5,6 +5,8 @@ import com.sosom.voice.dto.SendVoiceResponseDto;
 import com.sosom.voice.dto.VoiceRequestDto;
 import com.sosom.voice.service.VoiceService;
 import com.sosom.websocket.WebSokcetConst;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,10 +27,12 @@ import static com.sosom.websocket.WebSokcetConst.EMAIL;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "voice",description = "대화에 관한 api")
 public class VoiceController {
 
     private final VoiceService voiceService;
 
+    @Operation(summary = "대화 저장 및 대화방 생성",description = "대화 파일 및 메시지를 받아 대화방을 만듭니다.")
     @PostMapping("/api/voices")
     public ResponseEntity<IdDto> saveVoice(@Valid @RequestBody VoiceRequestDto voiceRequestDto, @AuthenticationPrincipal UserDetails userDetail){
         return voiceService.saveVoice(voiceRequestDto,userDetail);
