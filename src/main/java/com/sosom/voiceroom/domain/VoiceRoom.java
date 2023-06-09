@@ -1,5 +1,6 @@
 package com.sosom.voiceroom.domain;
 
+import com.sosom.baseentity.BaseTimeEntity;
 import com.sosom.room.domain.Room;
 import com.sosom.voice.domain.Voice;
 import lombok.AccessLevel;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class VoiceRoom {
+public class VoiceRoom extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

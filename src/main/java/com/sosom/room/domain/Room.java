@@ -1,5 +1,6 @@
 package com.sosom.room.domain;
 
+import com.sosom.baseentity.BaseTimeEntity;
 import com.sosom.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Room {
+public class Room extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
