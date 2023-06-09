@@ -75,6 +75,8 @@ public class VoiceService {
 
         Room room = validateRoom(roomId);
 
+        validateMemberRoom(member,room);
+
         String fileName = voiceUpload(voiceRequestDto);
 
         Voice voice = saveVoice(voiceRequestDto,member,fileName);
@@ -96,6 +98,11 @@ public class VoiceService {
     private Room validateRoom(Long roomId){
         return roomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_ROOM));
+    }
+
+    private void validateMemberRoom(Member member, Room room) {
+        memberRoomRepository.findByMemberAndRoom(member,room)
+                .orElseThrow(() -> new CustomException(ErrorCode.FAIL_AUTHORITY));
     }
 
     private String voiceUpload(VoiceRequestDto voiceRequestDto) {
