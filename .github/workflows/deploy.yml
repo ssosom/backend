@@ -75,6 +75,17 @@ jobs:
         run: echo "${{ secrets.SWAGGER_YML }}" > ./src/main/resources/swagger.yml
         shell: bash
 
+      # test.application.yml 생성
+      - name: make test.application.yml
+        run:
+          touch ./src/test/resources/application.yml
+        shell: bash
+
+      # test.application.yml 내용 추가
+      - name: test.application.yml
+        run: echo "${{ secrets.TEST_APPLICATION_YML }}" > ./src/test/resources/application.yml
+        shell: bash
+
       # (3) Gradle build
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
