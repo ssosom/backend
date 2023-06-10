@@ -75,6 +75,10 @@ jobs:
         run: echo "${{ secrets.SWAGGER_YML }}" > ./src/main/resources/swagger.yml
         shell: bash
 
+      # test resources directory 생성
+      - name: Create test resources directory
+        run: mkdir src/test/resources
+
       # test.application.yml 생성
       - name: make test.application.yml
         run:
