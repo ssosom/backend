@@ -3,8 +3,10 @@ package com.sosom.member.controller;
 import com.sosom.exception.ErrorResponse;
 import com.sosom.member.dto.ChangeNicknameRequest;
 import com.sosom.member.dto.LoginRequest;
+import com.sosom.member.dto.GetMemberInfoDto;
 import com.sosom.member.dto.SaveMemberRequest;
 import com.sosom.member.service.MemberService;
+import com.sosom.response.Result;
 import com.sosom.response.dto.IdDto;
 import com.sosom.security.jwt.TokenInfo;
 import com.sosom.security.userdetails.UserDetailsImpl;
@@ -21,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -36,6 +39,12 @@ public class MemberController {
     @ApiResponses(value = @ApiResponse(responseCode = "201", description = "회원가입된 Member의 아이디를 반환합니다"))
     public ResponseEntity<IdDto> saveMember(@RequestBody @Valid SaveMemberRequest saveMemberRequest){
         return new ResponseEntity<>(memberService.saveMember(saveMemberRequest),HttpStatus.CREATED);
+    }
+
+    @GetMapping("/api/members")
+    @Operation(summary = "회원정보",description = "회원정보를 반환합니다")
+    public ResponseEntity<Result<GetMemberInfoDto>> getMemberInfo(@AuthenticationPrincipal UserDetails userDetail){
+        return new ResponseEntity<>(memberService.getMemberInfo(userDetail.getUsername()),HttpStatus.OK);
     }
 
     @PostMapping("/api/login")

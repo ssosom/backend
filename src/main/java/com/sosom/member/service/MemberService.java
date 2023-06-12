@@ -5,8 +5,10 @@ import com.sosom.exception.ErrorCode;
 import com.sosom.member.domain.Member;
 import com.sosom.member.dto.ChangeNicknameRequest;
 import com.sosom.member.dto.LoginRequest;
+import com.sosom.member.dto.GetMemberInfoDto;
 import com.sosom.member.dto.SaveMemberRequest;
 import com.sosom.member.repository.MemberRepository;
+import com.sosom.response.Result;
 import com.sosom.response.dto.IdDto;
 import com.sosom.security.jwt.JwtTokenUtil;
 import com.sosom.security.jwt.TokenInfo;
@@ -15,7 +17,6 @@ import com.sosom.security.jwt.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +50,12 @@ public class MemberService {
         memberRepository.save(member);
 
         return new IdDto(member.getId());
+    }
+
+    public Result<GetMemberInfoDto> getMemberInfo(String email) {
+        Member member = validateMember(email);
+
+        return new Result<>(new GetMemberInfoDto(member.getNickname()));
     }
 
     @Transactional
