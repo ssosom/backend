@@ -4,9 +4,11 @@ import com.sosom.exception.CustomException;
 import com.sosom.exception.ErrorCode;
 import com.sosom.member.domain.Member;
 import com.sosom.member.dto.ChangeNicknameRequest;
+import com.sosom.member.dto.GetMemberInfoDto;
 import com.sosom.member.dto.LoginRequest;
 import com.sosom.member.dto.SaveMemberRequest;
 import com.sosom.member.repository.MemberRepository;
+import com.sosom.response.Result;
 import com.sosom.response.dto.IdDto;
 import com.sosom.security.jwt.JwtTokenUtil;
 import com.sosom.security.jwt.TokenInfo;
@@ -21,8 +23,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @Transactional
@@ -66,6 +72,49 @@ public class MemberServiceIntegrationTest {
         assertThat(savedMember.getEmail()).isEqualTo(saveMemberRequest.getEmail());
         assertThat(passwordEncoder.matches(saveMemberRequest.getPassword(),savedMember.getPassword())).isTrue();
         assertThat(savedMember.getNickname()).isEqualTo(saveMemberRequest.getNickname());
+    }
+
+    @Nested
+    @DisplayName("회원정보")
+    class getMemberInfo{
+
+        @Nested
+        @DisplayName("성공")
+        class success{
+            @Test
+            @DisplayName("정상적인 회원정보 반환")
+            void success_get_member_info(){
+                //given
+                String email = "email";
+
+                //when
+                Result<GetMemberInfoDto> result = memberService.getMemberInfo(email);
+
+                //then
+                assertThat(result.getData().getNickname()).isEqualTo("nickname");
+            }
+
+        }
+
+        @Nested
+        @DisplayName("실패")
+        class fail{
+
+            @Test
+            @DisplayName("회원이 아닌 경우")
+            void  fail_not_member(){
+                //given
+                String email = "not_exist_email";
+
+                //when
+                CustomException customException = assertThrows(CustomException.class,() -> memberService.getMemberInfo(email));
+
+                //then
+                assertThat(customException.getErrorCode()).isEqualTo(ErrorCode.FAIL_AUTHORIZATION);
+            }
+
+        }
+
     }
 
     @Nested

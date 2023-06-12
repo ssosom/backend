@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sosom.anotation.WithCustomUserDetails;
 import com.sosom.exception.CustomException;
 import com.sosom.exception.ErrorCode;
+import com.sosom.member.dto.GetMemberInfoDto;
 import com.sosom.member.dto.LoginRequest;
 import com.sosom.member.dto.SaveMemberRequest;
 import com.sosom.member.dto.ChangeNicknameRequest;
 import com.sosom.member.service.MemberService;
+import com.sosom.response.Result;
 import com.sosom.response.dto.IdDto;
 import com.sosom.security.jwt.TokenInfo;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +23,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -129,6 +136,52 @@ class MemberControllerTest {
                         .andDo(MockMvcResultHandlers.print());
             }
         }
+    }
+    @Nested
+    @DisplayName("회원정보")
+    class getMemberInfo{
+
+        @Nested
+        @DisplayName("성공")
+        class success{
+            @Test
+            @DisplayName("정상적인 회원정보 반환")
+            void success_get_member_info() throws Exception {
+                //given
+                Result<GetMemberInfoDto> result = new Result<>(new GetMemberInfoDto("nickname"));
+                given(memberService.getMemberInfo(any())).willReturn(result);
+
+                //when,then
+                mockMvc.perform(
+                        get("/api/members"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.data.nickname").value("nickname"))
+                        .andDo(MockMvcResultHandlers.print());
+            }
+
+        }
+
+        @Nested
+        @DisplayName("실패")
+        class fail{
+
+            @Test
+            @DisplayName("회원이 아닌 경우")
+            void  fail_not_member() throws Exception {
+                //given
+                when(memberService.getMemberInfo(any())).thenThrow(new CustomException(ErrorCode.FAIL_AUTHORIZATION));
+
+                //when,then
+                mockMvc.perform(
+                                get("/api/members"))
+                        .andExpect(status().isUnauthorized())
+                        .andExpect(jsonPath("$.errorName").value(ErrorCode.FAIL_AUTHORIZATION.name()))
+                        .andExpect(jsonPath("$.message").value(ErrorCode.FAIL_AUTHORIZATION.getMessage()))
+                        .andDo(MockMvcResultHandlers.print());
+            }
+
+        }
+
     }
 
     @Nested

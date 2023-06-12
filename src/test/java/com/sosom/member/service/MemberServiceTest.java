@@ -1,12 +1,15 @@
 package com.sosom.member.service;
 
+import com.sosom.anotation.WithCustomUserDetails;
 import com.sosom.exception.CustomException;
 import com.sosom.exception.ErrorCode;
 import com.sosom.member.domain.Member;
 import com.sosom.member.dto.ChangeNicknameRequest;
+import com.sosom.member.dto.GetMemberInfoDto;
 import com.sosom.member.dto.LoginRequest;
 import com.sosom.member.dto.SaveMemberRequest;
 import com.sosom.member.repository.MemberRepository;
+import com.sosom.response.Result;
 import com.sosom.response.dto.IdDto;
 import com.sosom.security.jwt.JwtTokenUtil;
 import com.sosom.security.jwt.TokenInfo;
@@ -25,6 +28,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -124,6 +128,51 @@ class MemberServiceTest {
             }
 
         }
+    }
+
+    @Nested
+    @DisplayName("회원정보")
+    class getMemberInfo{
+
+        @Nested
+        @DisplayName("성공")
+        class success{
+            @Test
+            @DisplayName("정상적인 회원정보 반환")
+            void success_get_member_info(){
+                //given
+                String email = member.getEmail();
+                given(memberRepository.findOptionalByEmail(any())).willReturn(Optional.of(member));
+
+                //when
+                Result<GetMemberInfoDto> result = memberService.getMemberInfo(email);
+
+                //then
+                assertThat(result.getData().getNickname()).isEqualTo(member.getNickname());
+            }
+
+        }
+
+        @Nested
+        @DisplayName("실패")
+        class fail{
+
+            @Test
+            @DisplayName("회원이 아닌 경우")
+            void  fail_not_member(){
+                //given
+                String email = "newEmail";
+                given(memberRepository.findOptionalByEmail(any())).willReturn(Optional.empty());
+
+                //when
+                CustomException customException = assertThrows(CustomException.class,() -> memberService.getMemberInfo(email));
+
+                //then
+                assertThat(customException.getErrorCode()).isEqualTo(ErrorCode.FAIL_AUTHORIZATION);
+            }
+
+        }
+
     }
 
         @Nested
