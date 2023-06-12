@@ -106,7 +106,7 @@ public class VoiceService {
     }
 
     private String voiceUpload(VoiceRequestDto voiceRequestDto) {
-        String fileName = folderName + UUID.randomUUID() + ".mp3";
+        String fileName = folderName + UUID.randomUUID() + ".wav";
         byte[] decodeBytes = Base64.decodeBase64(voiceRequestDto.getVoice());
         Base64MultiPartFile multiPartFile = new Base64MultiPartFile(decodeBytes);
         ObjectMetadata metadata = new ObjectMetadata();

@@ -29,7 +29,7 @@ public class Base64MultiPartFile implements MultipartFile {
 
     @Override
     public String getContentType() {
-        return "audio/mpeg";
+        return "audio/wav";
     }
 
     @Override
