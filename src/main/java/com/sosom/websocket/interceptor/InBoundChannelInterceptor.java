@@ -1,6 +1,9 @@
 package com.sosom.websocket.interceptor;
 
+import com.sosom.exception.CustomException;
+import com.sosom.exception.ErrorCode;
 import com.sosom.security.jwt.JwtTokenUtil;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -23,12 +26,19 @@ public class InBoundChannelInterceptor implements ChannelInterceptor {
 
 
         if(accessor.getMessageType() == SimpMessageType.CONNECT || accessor.getMessageType() == SimpMessageType.MESSAGE){
-            String token = accessor.getFirstNativeHeader("Authorization");
+            String jwtHeader = accessor.getFirstNativeHeader("Authorization");
 
-            if(JwtTokenUtil.validateJwtToken(token,secretKey)){
-                return MessageBuilder.fromMessage(message)
-                        .setHeader(EMAIL,JwtTokenUtil.getEmail(token,secretKey))
-                        .build();
+            if(jwtHeader != null && jwtHeader.startsWith("Bearer ")){
+                String token = jwtHeader.split(" ")[1];
+
+                if(JwtTokenUtil.validateJwtToken(token,secretKey)){
+                    return MessageBuilder.fromMessage(message)
+                            .setHeader(EMAIL,JwtTokenUtil.getEmail(token,secretKey))
+                            .build();
+                }
+
+            }else{
+                throw new CustomException(ErrorCode.FAIL_AUTHORIZATION);
             }
         }
 
