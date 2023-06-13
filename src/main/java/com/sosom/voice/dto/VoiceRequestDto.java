@@ -14,4 +14,6 @@ public class VoiceRequestDto {
     private String voice;
     @NotEmpty
     private String message;
+    @NotEmpty
+    private String type;
 }

@@ -1,9 +1,5 @@
 package com.sosom.voice.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sosom.exception.CustomException;
 import com.sosom.exception.ErrorCode;
 import com.sosom.member.domain.Member;
@@ -13,38 +9,27 @@ import com.sosom.memberroom.repository.MemberRoomRepository;
 import com.sosom.response.dto.IdDto;
 import com.sosom.room.domain.Room;
 import com.sosom.room.repository.RoomRepository;
+import com.sosom.s3.service.S3Service;
 import com.sosom.voice.domain.Voice;
 import com.sosom.voice.dto.SendVoiceResponseDto;
 import com.sosom.voice.dto.VoiceRequestDto;
-import com.sosom.voice.file.Base64MultiPartFile;
 import com.sosom.voice.repository.VoiceRepository;
 import com.sosom.voiceroom.domain.VoiceRoom;
 import com.sosom.voiceroom.repository.VoiceRoomRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class VoiceService {
 
-    @Value("${s3.folderName}")
-    private String folderName;
-    @Value("${s3.bucketName}")
-    private String bucketName;
     @Value("${s3.url}")
     private String url;
     private final VoiceRepository voiceRepository;
@@ -52,12 +37,13 @@ public class VoiceService {
     private final RoomRepository roomRepository;
     private final VoiceRoomRepository voiceRoomRepository;
     private final MemberRoomRepository memberRoomRepository;
-    private final AmazonS3 s3Client;
+    private final S3Service s3Service;
 
-    public ResponseEntity<IdDto> saveVoice(VoiceRequestDto voiceRequestDto, UserDetails userDetail) {
-        Member member = validateMember(userDetail.getUsername());
 
-        String fileName = voiceUpload(voiceRequestDto);
+    public IdDto saveVoice(VoiceRequestDto voiceRequestDto, String email) {
+        Member member = validateMember(email);
+
+        String fileName = s3Service.base64Upload(voiceRequestDto.getVoice(),voiceRequestDto.getType());
 
         Voice voice = saveVoice(voiceRequestDto, member, fileName);
 
@@ -67,17 +53,17 @@ public class VoiceService {
 
         updateMemberLastActive(member);
 
-        return new ResponseEntity<>(new IdDto(voice.getId()), HttpStatus.CREATED);
+        return new IdDto(voice.getId());
     }
 
-    public ResponseEntity<SendVoiceResponseDto> sendVoice(Long roomId, VoiceRequestDto voiceRequestDto, String email) {
+    public SendVoiceResponseDto sendVoice(Long roomId, VoiceRequestDto voiceRequestDto, String email) {
         Member member = validateMember(email);
 
         Room room = validateRoom(roomId);
 
         validateMemberRoom(member,room);
 
-        String fileName = voiceUpload(voiceRequestDto);
+        String fileName = s3Service.base64Upload(voiceRequestDto.getVoice(),voiceRequestDto.getType());
 
         Voice voice = saveVoice(voiceRequestDto,member,fileName);
 
@@ -85,9 +71,7 @@ public class VoiceService {
 
         updateMemberLastActive(member);
 
-        SendVoiceResponseDto body = new SendVoiceResponseDto(voice.getUrl(),voice.getMessage());
-
-        return new ResponseEntity<>(body,HttpStatus.CREATED);
+        return new SendVoiceResponseDto(voice.getUrl(),voice.getMessage());
     }
 
     private Member validateMember(String email) {
@@ -105,24 +89,6 @@ public class VoiceService {
                 .orElseThrow(() -> new CustomException(ErrorCode.FAIL_AUTHORITY));
     }
 
-    private String voiceUpload(VoiceRequestDto voiceRequestDto) {
-        String fileName = folderName + UUID.randomUUID() + ".wav";
-        byte[] decodeBytes = Base64.decodeBase64(voiceRequestDto.getVoice());
-        Base64MultiPartFile multiPartFile = new Base64MultiPartFile(decodeBytes);
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(multiPartFile.getSize());
-        metadata.setContentType(multiPartFile.getContentType());
-
-        try{
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName,fileName,multiPartFile.getInputStream(),metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead);
-            s3Client.putObject(putObjectRequest);
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.FAIL_VOICE_UPLOAD);
-        }
-
-        return fileName;
-    }
 
     private Voice saveVoice(VoiceRequestDto voiceRequestDto, Member member, String fileName) {
         Voice voice = Voice.createVoice(member,url + fileName, voiceRequestDto.getMessage());
